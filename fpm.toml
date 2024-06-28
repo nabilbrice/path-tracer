@@ -1,0 +1,20 @@
+name = "pathtracer"
+version = "0.1.0"
+license = "license"
+author = "Nabil Brice"
+maintainer = "nabilbrice@yahoo.co.uk"
+copyright = "Copyright 2024, Nabil Brice"
+[build]
+auto-executables = true
+auto-tests = true
+auto-examples = true
+module-naming = false
+[install]
+library = false
+[fortran]
+implicit-typing = false
+implicit-external = false
+source-form = "free"
+[dev-dependencies]
+test-drive.git = "https://github.com/fortran-lang/test-drive"
+test-drive.tag = "v0.4.0"
