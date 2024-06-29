@@ -34,7 +34,8 @@ contains
     
   end subroutine save_to_ppm
 
-  !> Subroutine to read data from a ppm file
+  !> Subroutine to read data from a ppm file directly
+  !> into a pixel grid buffer
   subroutine read_from_ppm(filepath, data)
     character(len=*), intent(in)  :: filepath
     type(pixel_type), intent(out) :: data(:,:)

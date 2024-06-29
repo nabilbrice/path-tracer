@@ -19,9 +19,12 @@ module rays
   type, extends(hittable_type) :: sphere_type
      real(r64), dimension(3) :: centre
      real(r64)               :: radius
+     ! This should generally be a texture map when possible
+     integer, dimension(3) :: colour
    contains
      procedure :: new => new_sphere
      procedure :: get_normal
+     procedure :: get_surface_coord
   end type sphere_type
 
 contains
@@ -78,6 +81,7 @@ contains
 
     sphere%centre = centre
     sphere%radius = radius
+    sphere%colour = [255, 0, 0]
 
   end subroutine new_sphere
 
@@ -89,5 +93,21 @@ contains
     normal = (location - sphere%centre) / sphere%radius
 
   end function get_normal
+
+  !> Transformation from the global (camera) coordinate system to
+  !> local surface chart point
+  !> The location vector needs to already be normalised
+  !> theta = arccos(z)
+  !> phi   = arctan(y/x)
+  function get_surface_coord(sphere, location) result(surface_coord)
+    class(sphere_type),      intent(in) :: sphere
+    real(r64), dimension(3), intent(in) :: location
+    real(r64), dimension(2) :: surface_coord
+
+    surface_coord(1) = acos(location(3))
+    surface_coord(2) = atan(location(2),location(1))
+
+  end function get_surface_coord
+
 
 end module rays

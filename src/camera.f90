@@ -1,5 +1,6 @@
 module camera_mod
   use, intrinsic :: iso_fortran_env, only: r64 => real64
+  use constants_mod, only: pi
   use vectors, only: normalise
   use rays, only: ray_type, sphere_type
   implicit none
@@ -74,6 +75,7 @@ contains
     type(ray_type) :: ray
     integer :: i, j
     real(r64) :: param
+    real(r64), dimension(2) :: local_coord
 
     ! The contents of these loops can be made
     ! into an elemental procedure
@@ -85,9 +87,9 @@ contains
           param = ray%intersect_sphere(sphere)
           ! If there is an intersection, color the pixel
           if (param > 0.0) then
-             camera%pixel_grid(i,j)%readout &
-                  = [100, 100, 100] &
-                  + [100, 100, 100] * sphere%get_normal(ray%get_position(param))
+             local_coord = sphere%get_surface_coord(ray%get_position(param))
+             camera%pixel_grid(i,j)%readout = sphere%colour &
+                  * modulo(int(local_coord(1)*20),2)
           else
              ! Pixels begin as empty
              camera%pixel_grid(i,j)%readout = [0, 0, 0]
