@@ -14,6 +14,6 @@ program main
 
   call camera%raytrace(sphere)
 
-  call save_to_ppm("./image.ppm", camera%pixel_grid)
+  call save_to_ppm("./image.ppm", camera%image)
 
 end program main

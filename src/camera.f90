@@ -17,7 +17,7 @@ module camera_mod
   type :: camera_type
      !> Currently, assume the size of the camera
      real(r64), dimension(3) :: position
-     type(pixel_type), allocatable :: pixel_grid(:,:)
+     type(pixel_type), allocatable :: image(:,:)
    contains
      procedure :: build => build_camera
      procedure :: get_pixel_offset
@@ -33,7 +33,7 @@ contains
     ! Build the camera to be fixed on the z-axis
     camera%position = [real(r64) :: 0.0, 0.0, distance]
     ! Allocate space for storing pixel readouts
-    allocate(camera%pixel_grid(image_width, image_height))
+    allocate(camera%image(image_width, image_height))
 
   end subroutine build_camera
 
@@ -47,8 +47,8 @@ contains
     ! The size of the camera is 2.0 by 2.0
     ! TODO: camera position should really be distance
     offset = camera%position(3) * [                    &
-        -1.0 + 2.0*(i - 1.0)/size(camera%pixel_grid, 1), &
-         1.0 - 2.0*(j - 1.0)/size(camera%pixel_grid, 2), &
+        -1.0 + 2.0*(i - 1.0)/size(camera%image, 1), &
+         1.0 - 2.0*(j - 1.0)/size(camera%image, 2), &
          0.0                                       ]
 
   end function get_pixel_offset
@@ -79,8 +79,8 @@ contains
 
     ! The contents of these loops can be made
     ! into an elemental procedure
-    do j=1,size(camera%pixel_grid, 2)
-       do i=1,size(camera%pixel_grid,1)
+    do j=1,size(camera%image, 2)
+       do i=1,size(camera%image,1)
           ! Create a ray at the pixel
           call sample_as_eye(camera,i,j,ray)
           ! Then test for intersection with the sphere
@@ -88,11 +88,11 @@ contains
           ! If there is an intersection, color the pixel
           if (param > 0.0) then
              local_coord = sphere%get_surface_coord(ray%get_position(param))
-             camera%pixel_grid(i,j)%readout = sphere%colour &
+             camera%image(i,j)%readout = sphere%colour &
                   * modulo(int(local_coord(1)*20),2)
           else
              ! Pixels begin as empty
-             camera%pixel_grid(i,j)%readout = [0, 0, 0]
+             camera%image(i,j)%readout = [0, 0, 0]
           end if
        end do
     end do
