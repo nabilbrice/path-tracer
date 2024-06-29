@@ -2,7 +2,7 @@ module test_rays
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use constants_mod, only: pi
   use testdrive, only: error_type, unittest_type, new_unittest, check
-  use rays, only: ray_type, sphere_type
+  use rays_mod, only: ray_type, sphere_type
   implicit none
   private
 

@@ -1,4 +1,4 @@
-module rays
+module rays_mod
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   implicit none
 
@@ -110,4 +110,4 @@ contains
   end function get_surface_coord
 
 
-end module rays
+end module rays_mod

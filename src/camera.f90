@@ -2,7 +2,7 @@ module camera_mod
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use constants_mod, only: pi
   use vectors, only: normalise
-  use rays, only: ray_type, sphere_type
+  use rays_mod, only: ray_type, sphere_type
   implicit none
 
   ! This could be replaced by a constant parameter like

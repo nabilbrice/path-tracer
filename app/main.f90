@@ -1,8 +1,8 @@
 program main
   use, intrinsic :: iso_fortran_env, only: dp => real64
   use camera_mod, only: camera_type
-  use rays, only: sphere_type
-  use driver_io, only: save_to_ppm
+  use rays_mod, only: sphere_type
+  use io_mod, only: save_to_ppm
   implicit none
 
   type(sphere_type) :: sphere

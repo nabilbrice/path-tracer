@@ -1,8 +1,9 @@
 module test_io
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use testdrive, only: error_type, unittest_type, new_unittest, check
-  use driver_io, only: save_to_ppm, read_from_ppm
+  use io_mod, only: save_to_ppm, read_from_ppm
   use camera_mod, only: pixel_type, camera_type
+  use rays_mod, only: sphere_type
   implicit none
   private
 
@@ -72,7 +73,6 @@ contains
   end subroutine test_larger_ppm
 
   subroutine test_draw_sphere(error)
-    use rays, only: sphere_type
     type(error_type), allocatable, intent(out) :: error
 
     type(sphere_type) :: sphere

@@ -1,4 +1,4 @@
-module driver_io
+module io_mod
   use camera_mod, only: pixel_type
   implicit none
 
@@ -67,5 +67,4 @@ contains
     close(file_handle)
   end subroutine read_from_ppm
 
-end module driver_io
-
+end module io_mod
