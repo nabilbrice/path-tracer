@@ -3,6 +3,7 @@ program main
   use camera_mod, only: camera_type
   use rays_mod, only: sphere_type
   use io_mod, only: save_to_ppm
+  use raytracer_mod, only: raytrace
   implicit none
 
   type(sphere_type) :: sphere
@@ -12,7 +13,7 @@ program main
   call sphere%new([real(dp) :: 0.0, 0.0, 0.0], 1.0_dp)
   call camera%build(1.5_dp, 512, 512)
 
-  call camera%raytrace(sphere)
+  call raytrace(camera, sphere)
 
   call save_to_ppm("./image.ppm", camera%image)
 

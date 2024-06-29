@@ -1,9 +1,10 @@
 module test_io
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use testdrive, only: error_type, unittest_type, new_unittest, check
-  use io_mod, only: save_to_ppm, read_from_ppm
-  use camera_mod, only: pixel_type, camera_type
+  use io_mod, only: save_to_ppm, read_from_ppm, load_from_dat
+  use camera_mod, only: pixel_type, camera_type, get_readout
   use rays_mod, only: sphere_type
+  use raytracer_mod, only: raytrace
   implicit none
   private
 
@@ -17,7 +18,10 @@ contains
     testsuite = [new_unittest("save to ppm", test_save_to_ppm), &
          new_unittest("read from ppm", test_read_from_ppm),     &
          new_unittest("larger ppm", test_larger_ppm),           &
-         new_unittest("sphere ppm", test_draw_sphere) ]
+         new_unittest("sphere ppm", test_draw_sphere),          &
+         new_unittest("load from dat", test_load_from_dat),     &
+         new_unittest("get readout from map", &
+                        test_get_readout_using_surface_coord)]
   end subroutine collect_driver_io
 
   !> Unit test for saving to ppm file with the standard data
@@ -82,11 +86,50 @@ contains
 
     call camera%build(1.5_r64, 512, 512)
 
-    call camera%raytrace(sphere)
+    call raytrace(camera,sphere)
 
     call save_to_ppm("./sphere.ppm", camera%image)
 
   end subroutine test_draw_sphere
+
+  subroutine test_load_from_dat(error)
+    type(error_type), allocatable, intent(out) :: error
+
+    type(pixel_type), allocatable :: data(:,:)
+    integer, dimension(3)         :: expect
+
+    data = load_from_dat("./test.dat")
+
+    expect = [255, 0, 0]
+    call check(error, data(1,1)%readout(1), expect(1))
+    call check(error, data(1,1)%readout(2), expect(2))
+
+  end subroutine test_load_from_dat
+
+  subroutine test_get_readout_using_surface_coord(error)
+    type(error_type), allocatable, intent(out) :: error
+
+    type(pixel_type), allocatable :: data(:,:)
+    real(r64), dimension(2)       :: surface_coord
+    integer, dimension(3)         :: readout
+    integer, dimension(3)         :: expect
+
+    ! Data has dimension(3,2)
+    data = load_from_dat("./test.dat")
+
+    ! Should read the 2nd entry in the file
+    surface_coord = [real(r64) :: 0, 0.5 ]
+    expect = [0, 255, 0]
+    readout = get_readout(data, surface_coord)
+    call check(error, readout(2), expect(2))
+
+    ! Should read the second to last entry
+    surface_coord = [real(r64) :: 0.75, 0.6]
+    expect = [255, 255, 255]
+    readout = get_readout(data, surface_coord)
+    call check(error, readout(3), expect(3))
+
+  end subroutine test_get_readout_using_surface_coord
 
 end module test_io
 

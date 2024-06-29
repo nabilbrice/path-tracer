@@ -2,7 +2,7 @@ module camera_mod
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use constants_mod, only: pi
   use vectors, only: normalise
-  use rays_mod, only: ray_type, sphere_type
+  use rays_mod, only: ray_type
   implicit none
 
   ! This could be replaced by a constant parameter like
@@ -21,7 +21,6 @@ module camera_mod
    contains
      procedure :: build => build_camera
      procedure :: get_pixel_offset
-     procedure :: raytrace
   end type camera_type
 
 contains
@@ -67,36 +66,20 @@ contains
   !> Creates a sample ray, as a detector at infinity
   !> TODO
 
-  !> Actually the full raytrace subroutine
-  subroutine raytrace(camera, sphere)
-    class(camera_type), intent(inout) :: camera
-    type(sphere_type), intent(in)     :: sphere
+  !> Gets the readout from a texture map
+  function get_readout(map, surface_coord) result(readout)
+    type(pixel_type), intent(in) :: map(:,:)
+    real(r64), dimension(2), intent(in) :: surface_coord
+    integer, dimension(3) :: readout
 
-    type(ray_type) :: ray
-    integer :: i, j
-    real(r64) :: param
-    real(r64), dimension(2) :: local_coord
+    integer :: map_width, map_height
+    map_width = size(map,1)
+    map_height = size(map, 2)
+    map_width = int(real(map_width, r64) * surface_coord(2) * 0.9_r64) + 1
+    map_height = int(real(map_height, r64) * surface_coord(1) * 0.9_r64) + 1
 
-    ! The contents of these loops can be made
-    ! into an elemental procedure
-    do j=1,size(camera%image, 2)
-       do i=1,size(camera%image,1)
-          ! Create a ray at the pixel
-          call sample_as_eye(camera,i,j,ray)
-          ! Then test for intersection with the sphere
-          param = ray%intersect_sphere(sphere)
-          ! If there is an intersection, color the pixel
-          if (param > 0.0) then
-             local_coord = sphere%get_surface_coord(ray%get_position(param))
-             camera%image(i,j)%readout = sphere%colour &
-                  * modulo(int(local_coord(1)*64),2)
-          else
-             ! Pixels begin as empty
-             camera%image(i,j)%readout = [0, 0, 0]
-          end if
-       end do
-    end do
+    readout = map(map_width, map_height)%readout
 
-  end subroutine raytrace
+  end function get_readout
 
 end module camera_mod

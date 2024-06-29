@@ -112,5 +112,4 @@ contains
 
   end function get_surface_coord
 
-
 end module rays_mod

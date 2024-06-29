@@ -35,7 +35,7 @@ contains
   end subroutine save_to_ppm
 
   !> Subroutine to read data from a ppm file directly
-  !> into a pixel grid buffer
+  !> into an image buffer
   subroutine read_from_ppm(filepath, data)
     character(len=*), intent(in)  :: filepath
     type(pixel_type), intent(out) :: data(:,:)
@@ -66,5 +66,31 @@ contains
 
     close(file_handle)
   end subroutine read_from_ppm
+
+  !> Subroutine to read data from a dat file directly
+  !> into an allocatable image buffer (not held by a camera)
+  function load_from_dat(filepath) result(buffer)
+    character(len=*), intent(in)  :: filepath
+    type(pixel_type), allocatable :: buffer(:,:)
+
+    integer :: file_handle, stat
+    integer :: i, j, k, image_width, image_height
+
+    open(newunit=file_handle, file=filepath, status='old')
+    ! Read the header (standard to the dat files used here)
+    read(file_handle, '(i3, 1x, i3)') image_width, image_height
+    ! Allocate size based on the specified width and height
+    allocate(buffer(image_width, image_height), stat=stat)
+
+    ! Read in the data
+    do k=1,image_height
+       do j=1,image_width
+          read(file_handle, '(3(i3, 1x))') &
+               (buffer(j,k)%readout(i), i=1,3)
+       end do
+    end do
+
+    close(file_handle)
+  end function load_from_dat
 
 end module io_mod
