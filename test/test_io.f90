@@ -26,16 +26,16 @@ contains
   subroutine test_save_to_ppm(error)
     type(error_type), allocatable, intent(out) :: error
 
-    type(pixel_type), dimension(3, 2) :: pixel_grid
+    type(pixel_type), dimension(3, 2) :: image
 
-    pixel_grid(1,1)%readout = [255, 0, 0]
-    pixel_grid(2,1)%readout = [0, 255, 0]
-    pixel_grid(3,1)%readout = [0, 0, 255]
-    pixel_grid(1,2)%readout = [255, 255, 0]
-    pixel_grid(2,2)%readout = [255, 255, 255]
-    pixel_grid(3,2)%readout = [0, 0, 0]
+    image(1,1)%readout = [255, 0, 0]
+    image(2,1)%readout = [0, 255, 0]
+    image(3,1)%readout = [0, 0, 255]
+    image(1,2)%readout = [255, 255, 0]
+    image(2,2)%readout = [255, 255, 255]
+    image(3,2)%readout = [0, 0, 0]
 
-    call save_to_ppm("./test.ppm", pixel_grid)
+    call save_to_ppm("./test.ppm", image)
 
   end subroutine test_save_to_ppm
 
@@ -43,13 +43,13 @@ contains
   subroutine test_read_from_ppm(error)
     type(error_type), allocatable, intent(out) :: error
 
-    type(pixel_type), dimension(3,2) :: pixel_grid
+    type(pixel_type), dimension(3,2) :: image
     integer, dimension(3) :: expect
 
-    call read_from_ppm("./test.ppm", pixel_grid)
+    call read_from_ppm("./test.ppm", image)
 
     expect = [0, 255, 0]
-    call check(error, pixel_grid(2,1)%readout(2), expect(2))
+    call check(error, image(2,1)%readout(2), expect(2))
 
   end subroutine test_read_from_ppm
 
@@ -57,18 +57,18 @@ contains
   subroutine test_larger_ppm(error)
     type(error_type), allocatable, intent(out) :: error
 
-    type(pixel_type), dimension(256,256) :: pixel_grid
+    type(pixel_type), dimension(256,256) :: image
     integer :: column, row
 
-    do row=1,size(pixel_grid,2)
-       do column=1,size(pixel_grid,1)
-          pixel_grid(column,row)%readout(1) = column
-          pixel_grid(column,row)%readout(2) = row
-          pixel_grid(column,row)%readout(3) = 0
+    do row=1,size(image,2)
+       do column=1,size(image,1)
+          image(column,row)%readout(1) = column
+          image(column,row)%readout(2) = row
+          image(column,row)%readout(3) = 0
        end do
     end do
 
-    call save_to_ppm("./background.ppm", pixel_grid)
+    call save_to_ppm("./background.ppm", image)
 
   end subroutine test_larger_ppm
 
@@ -84,7 +84,7 @@ contains
 
     call camera%raytrace(sphere)
 
-    call save_to_ppm("./sphere.ppm", camera%pixel_grid)
+    call save_to_ppm("./sphere.ppm", camera%image)
 
   end subroutine test_draw_sphere
 

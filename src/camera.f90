@@ -89,7 +89,7 @@ contains
           if (param > 0.0) then
              local_coord = sphere%get_surface_coord(ray%get_position(param))
              camera%image(i,j)%readout = sphere%colour &
-                  * modulo(int(local_coord(1)*20),2)
+                  * modulo(int(local_coord(1)*64),2)
           else
              ! Pixels begin as empty
              camera%image(i,j)%readout = [0, 0, 0]

@@ -1,5 +1,6 @@
 module rays_mod
   use, intrinsic :: iso_fortran_env, only: r64 => real64
+  use constants_mod, only: pi
   implicit none
 
   type :: ray_type
@@ -95,17 +96,19 @@ contains
   end function get_normal
 
   !> Transformation from the global (camera) coordinate system to
-  !> local surface chart point
+  !> local surface chart point (normalised)
   !> The location vector needs to already be normalised
-  !> theta = arccos(z)
-  !> phi   = arctan(y/x)
+  !> u * pi = theta = arccos(z)
+  !> v * 2*pi = phi = arctan(y/x)
   function get_surface_coord(sphere, location) result(surface_coord)
     class(sphere_type),      intent(in) :: sphere
     real(r64), dimension(3), intent(in) :: location
     real(r64), dimension(2) :: surface_coord
 
-    surface_coord(1) = acos(location(3))
-    surface_coord(2) = atan(location(2),location(1))
+    ! u = theta / pi      ; runs from 0 to 1
+    surface_coord(1) = acos(location(3)) / pi
+    ! v = phi / 2 pi + 0.5; runs from 0 to 1
+    surface_coord(2) = atan(location(2),location(1)) / 2 / pi + 0.5
 
   end function get_surface_coord
 

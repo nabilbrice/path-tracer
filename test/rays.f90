@@ -18,7 +18,7 @@ contains
                       test_ray_get_position),        &
          new_unittest("ray-sphere intersecting",     &
          test_ray_sphere_intersection), &
-         new_unittest("spherical coordinates",       &
+         new_unittest("normalised spherical coordinates",  &
          test_get_surface_coord)                     &
          ]
   end subroutine collect_rays_tests
@@ -75,13 +75,13 @@ contains
 
     call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64)
     location = [real(r64) :: 1.0, 0.0, 0.0]
-    expect = [real(r64) :: pi/2.0, 0.0]
+    expect = [real(r64) :: 0.5, 0.5]
     surface_coord = sphere%get_surface_coord(location)
     call check(error, surface_coord(1), expect(1))
     call check(error, surface_coord(2), expect(2))
 
     location = [real(r64) :: 0.0, -1.0, 0.0]
-    expect = [real(r64) :: pi/2.0, -pi/2.0]
+    expect = [real(r64) :: 0.5, 0.25]
     surface_coord = sphere%get_surface_coord(location)
     call check(error, surface_coord(1), expect(1))
     call check(error, surface_coord(2), expect(2))
