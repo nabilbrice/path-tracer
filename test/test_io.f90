@@ -1,7 +1,7 @@
 module test_io
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use testdrive, only: error_type, unittest_type, new_unittest, check
-  use driver_io, only: save_to_ppm
+  use driver_io, only: save_to_ppm, read_from_ppm
   use camera_mod, only: pixel_type, camera_type
   implicit none
   private
@@ -14,7 +14,8 @@ contains
     type(unittest_type), allocatable, intent(out) :: testsuite(:)
 
     testsuite = [new_unittest("save to ppm", test_save_to_ppm), &
-         new_unittest("larger ppm", test_larger_ppm),   &
+         new_unittest("read from ppm", test_read_from_ppm),     &
+         new_unittest("larger ppm", test_larger_ppm),           &
          new_unittest("sphere ppm", test_draw_sphere) ]
   end subroutine collect_driver_io
 
@@ -36,6 +37,21 @@ contains
     call save_to_ppm("./test.ppm", pixel_grid)
 
   end subroutine test_save_to_ppm
+
+  !> Unit test for reading from ppm file with the standard data
+  subroutine test_read_from_ppm(error)
+    type(error_type), allocatable, intent(out) :: error
+
+    type(pixel_type), dimension(3,2) :: pixel_grid
+    integer, dimension(3) :: expect
+
+    call read_from_ppm("./test.ppm", pixel_grid)
+
+    expect = [0, 255, 0]
+    call check(error, pixel_grid(2,1)%readout(2), expect(2))
+
+  end subroutine test_read_from_ppm
+
 
   subroutine test_larger_ppm(error)
     type(error_type), allocatable, intent(out) :: error
