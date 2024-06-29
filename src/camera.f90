@@ -19,7 +19,7 @@ module camera
      type(pixel_type), allocatable :: pixel_grid(:,:)
    contains
      procedure :: build => build_camera
-     procedure :: get_pixel_position
+     procedure :: get_pixel_offset
      procedure :: raytrace
   end type camera_type
 
@@ -36,22 +36,21 @@ contains
 
   end subroutine build_camera
 
-  !> Calculates the position of a pixel from its index
-  !> in the pixel grid
-  function get_pixel_position(camera, i, j) result(position)
+  !> Calculates the position of a pixel
+  !> relative to the camera position
+  function get_pixel_offset(camera, i, j) result(offset)
     class(camera_type), intent(in) :: camera
     integer, intent(in) :: i, j
-    real(r64), dimension(3) :: position
+    real(r64), dimension(3) :: offset
 
     ! The size of the camera is 2.0 by 2.0
     ! TODO: camera position should really be distance
-    position = camera%position(3) * [                    &
+    offset = camera%position(3) * [                    &
         -1.0 + 2.0*(i - 1.0)/size(camera%pixel_grid, 1), &
          1.0 - 2.0*(j - 1.0)/size(camera%pixel_grid, 2), &
-         0.0                                       ] &
-         + camera%position
+         0.0                                       ]
 
-  end function get_pixel_position
+  end function get_pixel_offset
 
   !> Creates a sample ray, using perspective
   subroutine sample_as_eye(camera, i, j, ray)
@@ -60,7 +59,7 @@ contains
     type(ray_type),     intent(out) :: ray
 
     call ray%new( camera%position, &
-         normalise(camera%get_pixel_position(i,j) - 2.0 * camera%position) )
+         normalise(camera%get_pixel_offset(i,j) - camera%position) )
 
   end subroutine sample_as_eye
 
