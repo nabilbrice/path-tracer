@@ -1,4 +1,4 @@
-module camera
+module camera_mod
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use vectors, only: normalise
   use rays, only: ray_type, sphere_type
@@ -97,4 +97,4 @@ contains
 
   end subroutine raytrace
 
-end module camera
+end module camera_mod

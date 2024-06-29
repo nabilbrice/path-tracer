@@ -1,5 +1,5 @@
 module driver_io
-  use camera, only: pixel_type
+  use camera_mod, only: pixel_type
   implicit none
 
 contains

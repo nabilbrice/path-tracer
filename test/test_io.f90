@@ -2,7 +2,7 @@ module test_io
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use testdrive, only: error_type, unittest_type, new_unittest, check
   use driver_io, only: save_to_ppm
-  use camera,    only: pixel_type, camera_type
+  use camera_mod, only: pixel_type, camera_type
   implicit none
   private
 
