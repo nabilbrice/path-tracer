@@ -2,8 +2,9 @@ module test_io
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use testdrive, only: error_type, unittest_type, new_unittest, check
   use io_mod, only: save_to_ppm, read_from_ppm, load_from_dat
-  use camera_mod, only: pixel_type, camera_type, get_readout
+  use pixels_mod, only: pixel_type, get_readout
   use rays_mod, only: sphere_type
+  use camera_mod, only: camera_type
   use raytracer_mod, only: raytrace
   implicit none
   private

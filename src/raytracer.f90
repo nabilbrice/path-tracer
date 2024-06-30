@@ -1,7 +1,8 @@
 module raytracer_mod
-  use, intrinsic :: iso_fortran_env, only: r64 => real64
+  use, intrinsic :: iso_fortran_env, only: r64 => real64, i32 => int32
   use rays_mod, only: ray_type, sphere_type
-  use camera_mod, only: pixel_type, camera_type, sample_as_eye, get_readout
+  use pixels_mod, only: pixel_type, get_readout
+  use camera_mod, only: camera_type, sample_as_eye
   use io_mod, only: load_from_dat
   implicit none
   private
@@ -17,11 +18,12 @@ contains
     type(sphere_type), intent(in)     :: sphere
 
     type(ray_type) :: ray
-    integer :: i, j
+    integer(i32) :: i, j
     real(r64) :: param
     real(r64), dimension(2) :: surface_coord
     type(pixel_type), allocatable :: map(:,:)
 
+    ! This actually belongs with building a sphere
     map = load_from_dat("./test.dat")
 
     ! The contents of these loops can be made
