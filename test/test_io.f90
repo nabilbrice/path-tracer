@@ -6,6 +6,7 @@ module test_io
   use rays_mod, only: sphere_type
   use camera_mod, only: camera_type
   use raytracer_mod, only: raytrace
+  use surfaces_mod, only: generate_gridded_surface
   implicit none
   private
 
