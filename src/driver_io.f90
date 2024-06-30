@@ -79,7 +79,7 @@ contains
 
     open(newunit=file_handle, file=filepath, status='old')
     ! Read the header (standard to the dat files used here)
-    read(file_handle, '(i3, 1x, i3)') image_width, image_height
+    read(file_handle, *) image_width, image_height
     ! Allocate size based on the specified width and height
     allocate(buffer(image_width, image_height), stat=stat)
     
@@ -93,5 +93,33 @@ contains
 
     close(file_handle)
   end function load_from_dat
+
+  !> Subroutine to save data from an image buffer
+  !> into a dat file, formatted with the conventions
+  subroutine save_to_dat(filepath, image)
+    character(len=*), intent(in) :: filepath
+    type(pixel_type), intent(in) :: image(:,:)
+
+    integer(i32) :: file_handle
+    integer(i32) :: i, j, k, image_width, image_height
+
+    image_width = size(image,1)
+    image_height = size(image,2)
+
+    open(newunit=file_handle, file=filepath)
+    ! Write the dimensions of the image as header
+    write(file_handle, '(i3,1x,i3)') image_width, image_height
+
+    ! Write the data
+    do k=1,image_height
+       do j=1,image_width
+          write(file_handle, '(3(i3,1x))') &
+               (image(j,k)%readout(i), i=1,3)
+       end do
+    end do
+
+    close(file_handle)
+
+  end subroutine save_to_dat
 
 end module io_mod

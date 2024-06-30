@@ -1,7 +1,7 @@
 module test_io
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use testdrive, only: error_type, unittest_type, new_unittest, check
-  use io_mod, only: save_to_ppm, read_from_ppm, load_from_dat
+  use io_mod, only: save_to_ppm, read_from_ppm, load_from_dat, save_to_dat
   use pixels_mod, only: pixel_type, get_readout
   use rays_mod, only: sphere_type
   use camera_mod, only: camera_type
@@ -12,6 +12,19 @@ module test_io
   public :: collect_driver_io
 
 contains
+  !> Initialise a small test image to be used in the tests
+  subroutine init_small_test_image(image)
+    type(pixel_type), dimension(3,2), intent(out) :: image
+
+    image(1,1)%readout = [255, 0, 0]
+    image(2,1)%readout = [0, 255, 0]
+    image(3,1)%readout = [0, 0, 255]
+    image(1,2)%readout = [255, 255, 0]
+    image(2,2)%readout = [255, 255, 255]
+    image(3,2)%readout = [0, 0, 0]
+
+  end subroutine init_small_test_image
+
   !> Collects the driver_io testsuites
   subroutine collect_driver_io(testsuite)
     type(unittest_type), allocatable, intent(out) :: testsuite(:)
@@ -22,7 +35,8 @@ contains
          new_unittest("sphere ppm", test_draw_sphere),          &
          new_unittest("load from dat", test_load_from_dat),     &
          new_unittest("get readout from map", &
-                        test_get_readout_using_surface_coord)]
+         test_get_readout_using_surface_coord),  &
+         new_unittest("save to dat", test_save_to_dat)]
   end subroutine collect_driver_io
 
   !> Unit test for saving to ppm file with the standard data
@@ -31,14 +45,8 @@ contains
   subroutine test_save_to_ppm(error)
     type(error_type), allocatable, intent(out) :: error
 
-    type(pixel_type), dimension(3, 2) :: image
-
-    image(1,1)%readout = [255, 0, 0]
-    image(2,1)%readout = [0, 255, 0]
-    image(3,1)%readout = [0, 0, 255]
-    image(1,2)%readout = [255, 255, 0]
-    image(2,2)%readout = [255, 255, 255]
-    image(3,2)%readout = [0, 0, 0]
+    type(pixel_type), dimension(3,2) :: image
+    call init_small_test_image(image)
 
     call save_to_ppm("./test.ppm", image)
 
@@ -49,15 +57,15 @@ contains
     type(error_type), allocatable, intent(out) :: error
 
     type(pixel_type), dimension(3,2) :: image
-    integer, dimension(3) :: expect
+    type(pixel_type), dimension(3,2) :: expect_image
 
     call read_from_ppm("./test.ppm", image)
 
-    expect = [0, 255, 0]
-    call check(error, image(2,1)%readout(2), expect(2))
+    call init_small_test_image(expect_image)
+    call check(error, image(2,1)%readout(2), &
+         expect_image(2,1)%readout(2))
 
   end subroutine test_read_from_ppm
-
 
   subroutine test_larger_ppm(error)
     type(error_type), allocatable, intent(out) :: error
@@ -106,6 +114,23 @@ contains
     call check(error, data(1,1)%readout(2), expect(2))
 
   end subroutine test_load_from_dat
+
+  subroutine test_save_to_dat(error)
+    type(error_type), allocatable, intent(out) :: error
+
+    type(pixel_type), allocatable :: image(:,:)
+    type(pixel_type), dimension(3,2) :: expect_image
+
+    call init_small_test_image(expect_image)
+
+    call save_to_dat("./test.dat", expect_image)
+
+    ! Load the image again to compare
+    image = load_from_dat("./test.dat")
+
+    call check(error, image(1,1)%readout(1), expect_image(1,1)%readout(1))
+    ! No other checks right now
+  end subroutine test_save_to_dat
 
   subroutine test_get_readout_using_surface_coord(error)
     type(error_type), allocatable, intent(out) :: error
