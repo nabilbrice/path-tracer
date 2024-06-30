@@ -22,6 +22,7 @@ module rays_mod
      real(r64)               :: radius
      ! This should generally be a texture map when possible
      integer, dimension(3) :: colour
+     real(r64), dimension(3,3) :: orientation
    contains
      procedure :: new => new_sphere
      procedure :: get_normal
@@ -75,14 +76,23 @@ contains
 
   end function intersect_sphere
 
-  subroutine new_sphere(sphere, centre, radius)
+  subroutine new_sphere(sphere, centre, radius, theta)
     class(sphere_type), intent(inout) :: sphere
     real(r64), dimension(3), intent(in) :: centre
     real(r64), intent(in) :: radius
+    real(r64), intent(in) :: theta
 
     sphere%centre = centre
     sphere%radius = radius
     sphere%colour = [255, 0, 0]
+
+    ! The surface transforms opposite to the rotation
+    ! TODO: make more rigorous argument here
+    sphere%orientation = reshape([real(r64) :: &
+         1,           0,           0,           &
+         0,  cos(theta),  sin(theta),           &
+         0, -sin(theta),  cos(theta)          ],&
+         [3,3] )
 
   end subroutine new_sphere
 
@@ -105,10 +115,14 @@ contains
     real(r64), dimension(3), intent(in) :: location
     real(r64), dimension(2) :: surface_coord
 
+    real(r64), dimension(3) :: local_coord
+
+    local_coord = matmul(sphere%orientation, location)
+
     ! u = theta / pi      ; runs from 0 to 1
-    surface_coord(1) = acos(location(3)) / pi
+    surface_coord(1) = acos(local_coord(3)) / pi
     ! v = phi / 2 pi + 0.5; runs from 0 to 1
-    surface_coord(2) = atan(location(2),location(1)) / 2 / pi + 0.5
+    surface_coord(2) = atan(local_coord(2),local_coord(1)) / 2 / pi + 0.5
 
   end function get_surface_coord
 
