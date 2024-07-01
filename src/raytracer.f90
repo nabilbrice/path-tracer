@@ -2,7 +2,7 @@ module raytracer_mod
   use, intrinsic :: iso_fortran_env, only: r64 => real64, i32 => int32
   use rays_mod, only: ray_type, sphere_type
   use pixels_mod, only: pixel_type, get_readout
-  use camera_mod, only: camera_type, sample_as_eye
+  use camera_mod, only: camera_type, sample_as_eye, sample_at_infinity
   use io_mod, only: load_from_dat
   implicit none
   private
@@ -31,7 +31,7 @@ contains
     do j=1,size(camera%image, 2)
        do i=1,size(camera%image,1)
           ! Create a ray at the pixel
-          call sample_as_eye(camera,i,j,ray)
+          call sample_at_infinity(camera,i,j,ray)
           ! Then test for intersection with the sphere
           param = ray%intersect_sphere(sphere)
           ! If there is an intersection, color the pixel

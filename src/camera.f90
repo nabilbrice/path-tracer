@@ -58,5 +58,14 @@ contains
   end subroutine sample_as_eye
 
   !> Creates a sample ray, as a detector at infinity
-  !> TODO
+  subroutine sample_at_infinity(camera, i, j, ray)
+    class(camera_type), intent(in)  :: camera
+    integer(i32),       intent(in)  :: i, j
+    type(ray_type),     intent(out) :: ray
+
+    call ray%new( camera%position + camera%get_pixel_offset(i,j), &
+         -normalise(camera%position) )
+
+  end subroutine sample_at_infinity
+
 end module camera_mod
