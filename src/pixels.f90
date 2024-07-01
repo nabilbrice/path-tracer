@@ -1,5 +1,6 @@
 module pixels_mod
-  use, intrinsic :: iso_fortran_env, only: r64 => real64, i32 => int32
+  use, intrinsic :: iso_fortran_env, only: r64 => real64, &
+                                           i32 => int32
   implicit none
   private
 
@@ -24,8 +25,8 @@ contains
     integer :: image_width, image_height
     image_width = size(image,1)
     image_height = size(image, 2)
-    image_width = int(real(image_width, r64) * normalised_coord(2) * 0.9) + 1
-    image_height = int(real(image_height, r64) * normalised_coord(1) * 0.9) + 1
+    image_width = floor(real(image_width, r64) * normalised_coord(2) * 0.9) + 1
+    image_height = floor(real(image_height, r64) * normalised_coord(1) * 0.9) + 1
 
     readout = image(image_width, image_height)%readout
 

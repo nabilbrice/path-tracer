@@ -1,6 +1,7 @@
 module rays_mod
   use, intrinsic :: iso_fortran_env, only: r64 => real64
-  use constants_mod, only: pi
+  use constants_mod, only: pi, gr_compactness
+  use vectors, only: normalise
   implicit none
 
   type :: ray_type
@@ -10,6 +11,8 @@ module rays_mod
      procedure :: new => new_ray
      procedure :: get_position
      procedure :: intersect_sphere
+     procedure :: gr_get_position
+     procedure :: gr_intersect_sphere
   end type ray_type
 
   ! Base type for hittables to inherit
@@ -39,6 +42,7 @@ contains
 
   end subroutine new_ray
 
+  !> The get position function assumes a certain (straight line) path
   function get_position(ray, param) result(position)
     class(ray_type), intent(in) :: ray
     real(r64),       intent(in) :: param
@@ -76,6 +80,47 @@ contains
 
   end function intersect_sphere
 
+  function gr_intersect_sphere(ray, sphere) result(gr_param)
+    class(ray_type),   intent(in) :: ray
+    type(sphere_type), intent(in) :: sphere
+
+    real(r64) :: b, cos_angle, gr_param
+    ! impact parameter b
+    b = norm2( &
+         ray%origin - (dot_product(ray%origin, ray%direction) * ray%direction))
+    gr_param = -1.1_r64 ! Set as guard, not just any negative value now
+    ! Outside of this impact parameter, there is no intersection
+    ! with the surface
+    if (b < sphere%radius / sqrt(gr_compactness)) then
+       ! The cos of the angle of incidence with the surface
+       cos_angle = sqrt(1.0_r64 - b**2 * gr_compactness / sphere%radius**2)
+       ! The cos of the deflection angle
+       ! This being greater than -1.0 is how it is known to be valid
+       gr_param = 1.0_r64 - (1.0_r64 - cos_angle) / gr_compactness
+    end if
+
+  end function gr_intersect_sphere
+
+  function gr_get_position(ray, param) result(position)
+    class(ray_type), intent(in) :: ray
+    real(r64),       intent(in) :: param
+
+    real(r64), dimension(3) :: normal, position
+
+    ! The check is necessary to avoid a NaN surfacing in the sqrt
+    if (param < 1.0) then
+       normal = normalise( &
+            ray%origin - dot_product(ray%origin, ray%direction) * ray%direction)
+
+       position = - param * ray%direction &
+            + sqrt(1.0_r64 - param**2) * normal
+    else
+       ! The safe value when the param = 1.0
+       position = - ray%direction
+    end if
+    
+  end function gr_get_position
+    
   subroutine new_sphere(sphere, centre, radius, theta)
     class(sphere_type), intent(inout) :: sphere
     real(r64), dimension(3), intent(in) :: centre
@@ -113,6 +158,7 @@ contains
   function get_surface_coord(sphere, location) result(surface_coord)
     class(sphere_type),      intent(in) :: sphere
     real(r64), dimension(3), intent(in) :: location
+
     real(r64), dimension(2) :: surface_coord
 
     real(r64), dimension(3) :: local_coord
@@ -122,7 +168,7 @@ contains
     ! u = theta / pi      ; runs from 0 to 1
     surface_coord(1) = acos(local_coord(3)) / pi
     ! v = phi / 2 pi + 0.5; runs from 0 to 1
-    surface_coord(2) = atan(local_coord(2),local_coord(1)) / 2 / pi + 0.5
+    surface_coord(2) = atan2(local_coord(2),local_coord(1)) / 2 / pi + 0.5
 
   end function get_surface_coord
 

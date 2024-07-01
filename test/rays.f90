@@ -19,8 +19,11 @@ contains
          new_unittest("ray-sphere intersecting",     &
          test_ray_sphere_intersection), &
          new_unittest("normalised spherical coordinates",  &
-         test_get_surface_coord)                     &
-         ]
+         test_get_surface_coord),                    &
+         new_unittest("ray-sphere gr intersecting",  &
+         test_ray_sphere_gr_intersection),           &
+         new_unittest("get gr position",             &
+         test_get_gr_position)]
   end subroutine collect_rays_tests
 
   !> Unit test for the cross product function
@@ -54,7 +57,7 @@ contains
     origin = [real(r64) :: -10.0, 0.0, 0.0]
     direction = [real(r64) :: 1.0, 0.0, 0.0]
 
-    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64)
+    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
     call ray%new(origin, direction)
 
     param = ray%intersect_sphere(sphere)
@@ -63,6 +66,26 @@ contains
     call check(error, param == expect)
 
   end subroutine test_ray_sphere_intersection
+
+  subroutine test_ray_sphere_gr_intersection(error)
+    type(error_type), allocatable, intent(out) :: error
+
+    type(ray_type)          :: ray
+    real(r64), dimension(3) :: origin, direction
+    real(r64)               :: param, expect
+    type(sphere_type)       :: sphere
+
+    ! Offset is outside the typical than the radius of the sphere
+    origin = [real(r64) :: 0.0, 0.0, 10.0]
+    direction = [real(r64) :: 0.0, 0.0, -1.0]
+
+    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
+    call ray%new(origin, direction)
+
+    param = ray%gr_intersect_sphere(sphere)
+    call check(error, (param > -1.0_r64))
+
+  end subroutine test_ray_sphere_gr_intersection
 
   !> Unit test for the local coordinate transformation
   subroutine test_get_surface_coord(error)
@@ -73,7 +96,7 @@ contains
     real(r64), dimension(2) :: surface_coord
     real(r64), dimension(2) :: expect
 
-    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64)
+    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
     location = [real(r64) :: 1.0, 0.0, 0.0]
     expect = [real(r64) :: 0.5, 0.5]
     surface_coord = sphere%get_surface_coord(location)
@@ -87,6 +110,32 @@ contains
     call check(error, surface_coord(2), expect(2))
 
   end subroutine test_get_surface_coord
+
+  !> Unit test for the local coordinate transformation
+  subroutine test_get_gr_position(error)
+    type(error_type), allocatable, intent(out) :: error
+
+    type(ray_type)    :: ray
+    type(sphere_type) :: sphere
+    real(r64), dimension(3) :: origin, direction, position
+    real(r64) :: param, x
+
+    ! Offset is outside the typical than the radius of the sphere
+    origin = [real(r64) :: 0.0, 0.0, 10.0]
+    direction = [real(r64) :: 0.0, 0.0, -1.0]
+
+    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
+    call ray%new(origin, direction)
+
+    ! Check it still moves in the y-z plane only
+
+    position = ray%gr_get_position(ray%gr_intersect_sphere(sphere))
+    write(*,*) ray%gr_intersect_sphere(sphere)
+    write(*,*) position
+    write(*,*) norm2(position)
+    write(*,*) sphere%get_surface_coord(position)
+
+  end subroutine test_get_gr_position
 
 end module test_rays
 

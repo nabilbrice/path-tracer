@@ -39,9 +39,9 @@ contains
 
     ! The size of the camera is 2.0 by 2.0
     ! TODO: camera position should really be distance
-    offset = camera%position(3) * [                    &
-        -1.0 + 2.0*(i - 1.0)/size(camera%image, 1), &
-         1.0 - 2.0*(j - 1.0)/size(camera%image, 2), &
+    offset = camera%position(3) * [                       &
+        -1.0 + 2.0*(real(i) - 1.0)/size(camera%image, 1), &
+         1.0 - 2.0*(real(j) - 1.0)/size(camera%image, 2), &
          0.0                                       ]
 
   end function get_pixel_offset
