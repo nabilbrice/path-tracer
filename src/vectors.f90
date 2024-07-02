@@ -3,7 +3,11 @@ module vectors
   implicit none
   private
 
-  public :: cross_product, normalise
+  public :: operator(.cross.), normalise
+
+  interface operator(.cross.)
+     module procedure cross_product
+  end interface operator(.cross.)
 
 contains
   function cross_product(a, b) result(c)

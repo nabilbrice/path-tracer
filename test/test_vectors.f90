@@ -1,7 +1,7 @@
 module test_vectors
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use testdrive, only: error_type, unittest_type, new_unittest, check
-  use vectors, only: cross_product
+  use vectors, only: operator(.cross.)
   implicit none
   private
 
@@ -25,7 +25,7 @@ contains
     a = [1.0, 0.0, 0.0]
     b = [0.0, 1.0, 0.0]
 
-    c = cross_product(a,b)
+    c = a .cross. b
     expect = [0.0, 0.0, 1.0]
 
     do i=1,3
