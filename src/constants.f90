@@ -9,5 +9,5 @@ module constants_mod
   ! This is the general relativistic compactness parameter,
   ! given by 1 - u = (1 - 2M / R),
   ! where M is the mass, R is the surface radius
-  real(dp), parameter :: gr_compactness = 0.4_dp
+  real(dp), parameter :: gr_compactness = 0.5_dp
 end module constants_mod

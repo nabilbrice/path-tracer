@@ -25,7 +25,7 @@ contains
     type(pixel_type), allocatable :: map(:,:)
 
     ! This actually belongs with building a sphere
-    map = load_from_dat("./grid_map.dat")
+    map = load_from_dat("./chequered_map.dat")
 
     ! The contents of these loops can be made
     ! into an elemental procedure
@@ -59,7 +59,7 @@ contains
     type(pixel_type), allocatable :: map(:,:)
 
     ! This actually belongs with building a sphere
-    map = load_from_dat("./grid_map.dat")
+    map = load_from_dat("./chequered_map.dat")
 
     ! The contents of these loops can be made
     ! into an elemental procedure
