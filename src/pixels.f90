@@ -9,7 +9,11 @@ module pixels_mod
   !> The pixel_type could be replaced with a parameter
   !> like READOUT_DIMS = 3
   type :: pixel_type
-     integer, dimension(3) :: readout
+     ! The default value for a readout starts at zero
+     integer(i32), dimension(3) :: readout = [0_i32, 0_i32, 0_i32]
+     ! By not holding the position of the pixel in camera space here
+     ! memory is saved but there is a computational cost with
+     ! each resampling of a ray from the pixel.
   end type pixel_type
 
 contains

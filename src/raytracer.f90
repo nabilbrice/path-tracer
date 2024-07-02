@@ -74,9 +74,6 @@ contains
              surface_coord = sphere%get_surface_coord( &
                   ray%gr_get_position(param) )
              camera%image(i,j)%readout = get_readout(map, surface_coord)
-          else
-             ! Pixels begin as empty
-             camera%image(i,j)%readout = [0, 0, 0]
           end if
        end do
     end do
