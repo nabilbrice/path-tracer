@@ -44,7 +44,7 @@ contains
     character(len=2) :: strbuffer
     integer(i32) :: intbuffer
     integer(i32) :: file_handle
-    integer(i32) :: i, j, k, image_width, image_height
+    integer(i32) :: i, k, image_width, image_height
 
     open(newunit=file_handle, file=filepath, status='old')
     ! Read header and check
@@ -52,23 +52,54 @@ contains
     if (trim(strbuffer) /= "P3") then
        write(*,*) "File does not start with P3"
     end if
-    read(file_handle, '(i3, 1x, i3)') image_width, image_height
+    read(file_handle, *) image_width, image_height
     read(file_handle, '(i3)') intbuffer
     if (intbuffer /= 255) then
        write(*,*) "File does not use 255"
     end if
 
-    ! Read in the data
+    ! Read in the data, flexible format
     do k=1,image_height
-       do j=1,image_width
-          read(file_handle, '(3(i3, 1x))') (data(j,k)%readout(i), i=1,3)
-       end do
+       read(file_handle, *) data(:,k)
     end do
 
     close(file_handle)
   end subroutine read_from_ppm
 
-  !> Subroutine to read data from a dat file directly
+  !> Function to read data from a ppm file directly
+  !> into an allocatable image buffer (not held by a camera)
+  function load_from_ppm(filepath) result(buffer)
+    character(len=*), intent(in)  :: filepath
+    type(pixel_type), allocatable :: buffer(:,:)
+
+    character(len=2) :: strbuffer
+    integer(i32) :: intbuffer
+    integer(i32) :: file_handle, stat
+    integer(i32) :: j, k, image_width, image_height
+
+    open(newunit=file_handle, file=filepath, status='old')
+    ! Read the header
+    read(file_handle, '(a)') strbuffer
+    if (trim(strbuffer) /= "P3") then
+       write(*,*) "File does not start with P3"
+    end if
+    read(file_handle, *) image_width, image_height
+    allocate(buffer(image_width, image_height), stat=stat)
+    read(file_handle, '(i3)') intbuffer
+    if (intbuffer /= 255) then
+       write(*,*) "File does not use 255"
+    end if
+
+    ! Read in the data, flexible format
+    do k=1,image_height
+       read(file_handle, *) (buffer(j,k)%readout(:), j=1,image_width)
+    end do
+
+    close(file_handle)
+
+  end function load_from_ppm
+
+  !> Function to read data from a dat file directly
   !> into an allocatable image buffer (not held by a camera)
   function load_from_dat(filepath) result(buffer)
     character(len=*), intent(in)  :: filepath
@@ -85,10 +116,7 @@ contains
     
     ! Read in the data
     do k=1,image_height
-       do j=1,image_width
-          read(file_handle, *) &
-               (buffer(j,k)%readout(i), i=1,3)
-       end do
+       read(file_handle, *) (buffer(j,k)%readout(:), j=1,image_width)
     end do
 
     close(file_handle)

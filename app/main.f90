@@ -11,7 +11,8 @@ program main
   type(camera_type) :: camera
 
   ! Construct the scene
-  call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, -pi/4)
+  call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, &
+       theta=pi/3, phi=-pi/2)
   call camera%build(2.0_r64, 512, 512)
 
   call raytrace(camera, sphere)

@@ -21,8 +21,8 @@ module rays_mod
   end type hittable_type
 
   type, extends(hittable_type) :: sphere_type
-     real(r64), dimension(3) :: centre
-     real(r64)               :: radius
+     real(r64), dimension(3) :: centre = [0_r64, 0_r64, 0_r64]
+     real(r64)               :: radius = 1.0_r64
      ! This should generally be a texture map when possible
      integer, dimension(3) :: colour
      real(r64), dimension(3,3) :: orientation
@@ -121,23 +121,40 @@ contains
     
   end function gr_get_position
     
-  subroutine new_sphere(sphere, centre, radius, theta)
+  subroutine new_sphere(sphere, centre, radius, theta, phi)
     class(sphere_type), intent(inout) :: sphere
     real(r64), dimension(3), intent(in) :: centre
     real(r64), intent(in) :: radius
-    real(r64), intent(in) :: theta
+    real(r64), optional, intent(in) :: theta, phi
 
     sphere%centre = centre
     sphere%radius = radius
     sphere%colour = [255, 0, 0]
 
+    ! The orientation needs to be given
+    sphere%orientation = reshape([real(r64) ::    &
+         1, 0, 0, &
+         0, 1, 0, &
+         0, 0, 1], [3,3] )
     ! The surface transforms opposite to the rotation
-    ! TODO: make more rigorous argument here
-    sphere%orientation = reshape([real(r64) :: &
-         1,           0,           0,           &
-         0,  cos(theta),  sin(theta),           &
-         0, -sin(theta),  cos(theta)          ],&
-         [3,3] )
+    ! First, transform about the y-axis, i.e.
+    ! rotate in longitude
+    if (present(phi)) then
+       sphere%orientation = reshape([real(r64) ::  &
+            cos(phi),        0, sin(phi),         &
+                   0,        1,        0,         &
+           -sin(phi),        0, cos(phi)        ],&
+       [3,3] )
+    end if
+    ! Then transform about the x-axis, i.e.
+    ! latitude inclination
+    if (present(theta)) then
+       sphere%orientation = matmul(reshape([real(r64) ::  &
+            1,           0,           0,           &
+            0,  cos(theta),  sin(theta),           &
+            0, -sin(theta),  cos(theta)          ],&
+       [3,3]), sphere%orientation )
+    end if
 
   end subroutine new_sphere
 
