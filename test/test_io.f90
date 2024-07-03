@@ -1,7 +1,7 @@
 module test_io
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use testdrive, only: error_type, unittest_type, new_unittest, check
-  use io_mod, only: save_to_ppm, read_from_ppm, load_from_dat, save_to_dat
+  use io_mod
   use pixels_mod, only: pixel_type, get_readout
   use rays_mod, only: sphere_type
   use camera_mod, only: camera_type
@@ -37,7 +37,8 @@ contains
          new_unittest("load from dat", test_load_from_dat),     &
          new_unittest("get readout from map", &
          test_get_readout_using_surface_coord),  &
-         new_unittest("save to dat", test_save_to_dat)]
+         new_unittest("save to dat", test_save_to_dat),         &
+         new_unittest("save to bin", test_save_to_bin)]
   end subroutine collect_driver_io
 
   !> Unit test for saving to ppm file with the standard data
@@ -132,6 +133,21 @@ contains
     call check(error, image(1,1)%readout(1), expect_image(1,1)%readout(1))
     ! No other checks right now
   end subroutine test_save_to_dat
+
+  subroutine test_save_to_bin(error)
+    type(error_type), allocatable, intent(out) :: error
+
+    type(pixel_type), allocatable :: image(:,:)
+    type(pixel_type), dimension(3,2) :: expect_image
+
+    call init_small_test_image(expect_image)
+
+    call save_to_bin("./testbindat.bd", expect_image)
+
+    image = load_from_bin("./testbindat.bd")
+
+    call check(error, image(1,1)%readout(1), expect_image(1,1)%readout(1))
+  end subroutine test_save_to_bin
 
   subroutine test_get_readout_using_surface_coord(error)
     type(error_type), allocatable, intent(out) :: error

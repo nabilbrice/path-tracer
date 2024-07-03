@@ -3,7 +3,7 @@ module camera_mod
   use constants_mod, only: pi
   use pixels_mod, only: pixel_type
   use vectors, only: normalise
-  use rays_mod, only: ray_type
+  use rays_mod, only: ray_type, new_ray
   implicit none
 
   !> The camera_type stores and manages the pixel layout
@@ -14,7 +14,6 @@ module camera_mod
      type(pixel_type), allocatable :: image(:,:)
    contains
      procedure :: build => build_camera
-     procedure :: get_pixel_offset
   end type camera_type
 
 contains
@@ -33,7 +32,7 @@ contains
   !> Calculates the position of a pixel
   !> relative to the camera position
   function get_pixel_offset(camera, i, j) result(offset)
-    class(camera_type), intent(in) :: camera
+    type(camera_type), intent(in) :: camera
     integer(i32), intent(in) :: i, j
     real(r64),  dimension(3) :: offset
 
@@ -52,19 +51,19 @@ contains
     integer(i32),       intent(in)  :: i, j
     type(ray_type),     intent(out) :: ray
 
-    call ray%new( camera%position, &
-         normalise(camera%get_pixel_offset(i,j) - camera%position) )
+    ray % origin = camera%position
+    ray % direction = normalise(get_pixel_offset(camera,i,j) - camera%position)
 
   end subroutine sample_as_eye
 
   !> Creates a sample ray, as a detector at infinity
   subroutine sample_at_infinity(camera, i, j, ray)
-    class(camera_type), intent(in)  :: camera
+    type(camera_type),  intent(in)  :: camera
     integer(i32),       intent(in)  :: i, j
     type(ray_type),     intent(out) :: ray
 
-    call ray%new( camera%position + camera%get_pixel_offset(i,j), &
-         -normalise(camera%position) )
+    ray % origin = camera%position + get_pixel_offset(camera,i,j)
+    ray % direction = -normalise(camera%position)
 
   end subroutine sample_at_infinity
 

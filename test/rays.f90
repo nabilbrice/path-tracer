@@ -2,7 +2,7 @@ module test_rays
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use constants_mod, only: pi
   use testdrive, only: error_type, unittest_type, new_unittest, check
-  use rays_mod, only: ray_type, sphere_type
+  use rays_mod
   implicit none
   private
 
@@ -34,9 +34,10 @@ contains
     real(r64), dimension(3) :: position, expect
     integer :: i
 
-    call ray%new([real(r64) :: 0.0,0.0,1.0], [real(r64) :: 1.0,1.0,0.0])
+    ray % origin = [0_r64,0_r64,1_r64]
+    ray % direction = [1_r64,1_r64,0_r64]
 
-    position = ray%get_position(3.0_r64)
+    position = get_position(ray, 3.0_r64)
     expect = [real(r64) :: 3.0, 3.0, 1.0]
 
     do i=1,3
@@ -54,13 +55,12 @@ contains
     real(r64)               :: param, expect
     type(sphere_type)       :: sphere
 
-    origin = [real(r64) :: -10.0, 0.0, 0.0]
-    direction = [real(r64) :: 1.0, 0.0, 0.0]
+    ray % origin = [real(r64) :: -10.0, 0.0, 0.0]
+    ray % direction = [real(r64) :: 1.0, 0.0, 0.0]
 
     call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
-    call ray%new(origin, direction)
 
-    param = ray%intersect_sphere(sphere)
+    param = intersect_sphere(ray, sphere)
     expect = 9.0_r64
 
     call check(error, param == expect)
@@ -76,13 +76,12 @@ contains
     type(sphere_type)       :: sphere
 
     ! Offset is outside the typical than the radius of the sphere
-    origin = [real(r64) :: 0.0, 0.0, 10.0]
-    direction = [real(r64) :: 0.0, 0.0, -1.0]
+    ray % origin = [real(r64) :: 0.0, 0.0, 10.0]
+    ray % direction = [real(r64) :: 0.0, 0.0, -1.0]
 
     call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
-    call ray%new(origin, direction)
 
-    param = ray%gr_intersect_sphere(sphere)
+    param = gr_intersect_sphere(ray, sphere)
     call check(error, (param > -1.0_r64))
 
   end subroutine test_ray_sphere_gr_intersection
@@ -99,13 +98,13 @@ contains
     call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
     location = [real(r64) :: 1.0, 0.0, 0.0]
     expect = [real(r64) :: 0.5, 0.5]
-    surface_coord = sphere%get_surface_coord(location)
+    surface_coord = get_surface_coord(sphere, location)
     call check(error, surface_coord(1), expect(1))
     call check(error, surface_coord(2), expect(2))
 
     location = [real(r64) :: 0.0, -1.0, 0.0]
     expect = [real(r64) :: 0.5, 0.25]
-    surface_coord = sphere%get_surface_coord(location)
+    surface_coord = get_surface_coord(sphere, location)
     call check(error, surface_coord(1), expect(1))
     call check(error, surface_coord(2), expect(2))
 
@@ -122,16 +121,15 @@ contains
     real(r64) :: param, latitude
 
     ! Offset is outside the typical than the radius of the sphere
-    origin = [real(r64) :: 1.0, 0.0, 10.0]
-    direction = [real(r64) :: 0.0, 0.0, -1.0]
+    ray % origin = [real(r64) :: 1.0, 0.0, 10.0]
+    ray % direction = [real(r64) :: 0.0, 0.0, -1.0]
 
     call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
-    call ray%new(origin, direction)
 
-    intersect_position = ray%gr_get_position(ray%gr_intersect_sphere(sphere))
-    surface_coord = sphere%get_surface_coord(intersect_position)
+    intersect_position = gr_get_position(ray, gr_intersect_sphere(ray, sphere))
+    surface_coord = get_surface_coord(sphere, intersect_position)
     latitude = surface_coord(1) * pi
-    call check(error, ray%gr_intersect_sphere(sphere), cos(latitude))
+    call check(error, gr_intersect_sphere(ray, sphere), cos(latitude))
 
   end subroutine test_gr_get_position
 

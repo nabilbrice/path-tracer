@@ -17,10 +17,10 @@ program main
 
   call raytrace(camera, sphere)
 
-  call save_to_ppm("./image.ppm", camera%image)
+  ! call save_to_ppm("./image.ppm", camera%image)
 
-  call gr_raytrace(camera, sphere)
+  ! call gr_raytrace(camera, sphere)
 
-  call save_to_ppm("./gr_image.ppm", camera%image)
+  ! call save_to_ppm("./gr_image.ppm", camera%image)
 
 end program main

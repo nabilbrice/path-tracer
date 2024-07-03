@@ -6,7 +6,9 @@ module io_mod
 contains
   !> Subroutine to save the data to a new ppm file
   !> filepath needs the correct extension .ppm included
-  !> to be viewable
+  !> to be viewable.
+  !> The header information is inferred from the dimensions
+  !> of the data type
   subroutine save_to_ppm(filepath, data)
     character(len=*), intent(in) :: filepath
     type(pixel_type), intent(in) :: data(:,:)
@@ -92,7 +94,7 @@ contains
 
     ! Read in the data, flexible format
     do k=1,image_height
-       read(file_handle, *) (buffer(j,k)%readout(:), j=1,image_width)
+       read(file_handle, *) buffer(:,k)
     end do
 
     close(file_handle)
@@ -123,7 +125,7 @@ contains
   end function load_from_dat
 
   !> Subroutine to save data from an image buffer
-  !> into a dat file, formatted with the conventions
+  !> into a dat file, formatted with the conventions.
   subroutine save_to_dat(filepath, image)
     character(len=*), intent(in) :: filepath
     type(pixel_type), intent(in) :: image(:,:)
@@ -149,5 +151,52 @@ contains
     close(file_handle)
 
   end subroutine save_to_dat
+
+  !> Subroutine to save data from an image buffer
+  !> into a binary data file, using unformatted I/O.
+  subroutine save_to_bin(filepath, image)
+    character(len=*), intent(in) :: filepath
+    type(pixel_type), intent(in) :: image(:,:)
+
+    integer(i32) :: file_handle
+    integer(i32) :: image_width, image_height
+
+    image_width = size(image,1)
+    image_height = size(image,2)
+
+    open(newunit=file_handle, file=filepath, &
+         form="unformatted")
+
+    ! Unformatted write of the image size first
+    write(file_handle) image_width
+    write(file_handle) image_height
+    write(file_handle) image
+
+    close(file_handle)
+
+  end subroutine save_to_bin
+
+  function load_from_bin(filepath) result(buffer)
+    character(len=*), intent(in)  :: filepath
+    type(pixel_type), allocatable :: buffer(:,:)
+
+    integer(i32) :: file_handle
+    integer(i32) :: image_width, image_height
+
+    open(newunit=file_handle, file=filepath, &
+         form="unformatted", status="old")
+
+    ! Read in the image size first,
+    ! in the same manner as the storage
+    read(file_handle) image_width
+    read(file_handle) image_height
+    ! Now allocate a buffer of the appropriate size
+    allocate(buffer(image_width, image_height))
+    ! The data can now be read into the buffer
+    read(file_handle) buffer
+
+    close(file_handle)
+
+  end function load_from_bin
 
 end module io_mod

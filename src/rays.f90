@@ -4,15 +4,11 @@ module rays_mod
   use vectors, only: normalise
   implicit none
 
+  !> This derived data type is used over and over in arguments
   type :: ray_type
      real(r64), dimension(3) :: origin
      real(r64), dimension(3) :: direction
    contains
-     procedure :: new => new_ray
-     procedure :: get_position
-     procedure :: intersect_sphere
-     procedure :: gr_get_position
-     procedure :: gr_intersect_sphere
   end type ray_type
 
   ! Base type for hittables to inherit
@@ -28,13 +24,11 @@ module rays_mod
      real(r64), dimension(3,3) :: orientation
    contains
      procedure :: new => new_sphere
-     procedure :: get_normal
-     procedure :: get_surface_coord
   end type sphere_type
 
 contains
   subroutine new_ray(ray, origin, direction)
-    class(ray_type), intent(inout) :: ray
+    type(ray_type), intent(inout) :: ray
     real(r64), dimension(3), intent(in)  :: origin, direction
 
     ray%origin = origin
@@ -44,7 +38,7 @@ contains
 
   !> The get position function assumes a certain (straight line) path
   function get_position(ray, param) result(position)
-    class(ray_type), intent(in) :: ray
+    type(ray_type), intent(in) :: ray
     real(r64),       intent(in) :: param
     real(r64), dimension(3)     :: position
 
@@ -53,8 +47,8 @@ contains
   end function get_position
 
   function intersect_sphere(ray, sphere) result(param)
-    class(ray_type),      intent(in) :: ray
-    type(sphere_type),    intent(in) :: sphere
+    type(ray_type),    intent(in) :: ray
+    type(sphere_type), intent(in) :: sphere
 
     real(r64) :: param
 
@@ -81,7 +75,7 @@ contains
   end function intersect_sphere
 
   function gr_intersect_sphere(ray, sphere) result(gr_param)
-    class(ray_type),   intent(in) :: ray
+    type(ray_type),    intent(in) :: ray
     type(sphere_type), intent(in) :: sphere
 
     real(r64) :: b, cos_angle, gr_param
@@ -102,8 +96,8 @@ contains
   end function gr_intersect_sphere
 
   function gr_get_position(ray, param) result(position)
-    class(ray_type), intent(in) :: ray
-    real(r64),       intent(in) :: param
+    type(ray_type), intent(in) :: ray
+    real(r64),      intent(in) :: param
 
     real(r64), dimension(3) :: normal, position
 
@@ -159,7 +153,7 @@ contains
   end subroutine new_sphere
 
   function get_normal(sphere, location) result(normal)
-    class(sphere_type),      intent(in)  :: sphere
+    type(sphere_type),       intent(in)  :: sphere
     real(r64), dimension(3), intent(in)  :: location
     real(r64), dimension(3)              :: normal
 
@@ -173,7 +167,7 @@ contains
   !> u * pi = theta = arccos(z)
   !> v * 2*pi = phi = arctan(y/x)
   function get_surface_coord(sphere, location) result(surface_coord)
-    class(sphere_type),      intent(in) :: sphere
+    type(sphere_type),       intent(in) :: sphere
     real(r64), dimension(3), intent(in) :: location
 
     real(r64), dimension(2) :: surface_coord

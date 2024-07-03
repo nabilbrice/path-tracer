@@ -1,7 +1,7 @@
 module raytracer_mod
   use, intrinsic :: iso_fortran_env, only: r64 => real64, i32 => int32
   use vectors, only: normalise
-  use rays_mod, only: ray_type, sphere_type
+  use rays_mod
   use pixels_mod, only: pixel_type, get_readout
   use camera_mod, only: camera_type, sample_as_eye, sample_at_infinity
   use io_mod, only: load_from_dat, load_from_ppm
@@ -34,10 +34,10 @@ contains
           ! Create a ray at the pixel
           call sample_at_infinity(camera,i,j,ray)
           ! Then test for intersection with the sphere
-          param = ray%intersect_sphere(sphere)
+          param = intersect_sphere(ray,sphere)
           ! If there is an intersection, color the pixel
           if (param > 0.0) then
-             surface_coord = sphere%get_surface_coord(ray%get_position(param))
+             surface_coord = get_surface_coord(sphere, get_position(ray,param))
              camera%image(i,j)%readout = get_readout(map, surface_coord)
           else
              ! Pixels begin as empty
@@ -68,11 +68,11 @@ contains
           ! Create a ray at the pixel
           call sample_at_infinity(camera,i,j,ray)
           ! Then test for intersection with the sphere
-          param = ray%gr_intersect_sphere(sphere)
+          param = gr_intersect_sphere(ray, sphere)
           ! If there is an intersection, color the pixel
           if (param > -0.99) then
-             surface_coord = sphere%get_surface_coord( &
-                  ray%gr_get_position(param) )
+             surface_coord = get_surface_coord( sphere, &
+                  gr_get_position(ray, param) )
              camera%image(i,j)%readout = get_readout(map, surface_coord)
           end if
        end do
