@@ -3,7 +3,7 @@ module test_io
   use testdrive, only: error_type, unittest_type, new_unittest, check
   use io_mod
   use pixels_mod, only: pixel_type, get_readout
-  use rays_mod, only: sphere_type
+  use rays_mod, only: sphere_type, new_sphere
   use camera_mod, only: camera_type
   use raytracer_mod, only: raytrace
   use surfaces_mod, only: generate_gridded_surface
@@ -93,7 +93,7 @@ contains
     type(sphere_type) :: sphere
     type(camera_type) :: camera
 
-    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
+    call new_sphere(sphere, [real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
 
     call camera%build(1.5_r64, 512, 512)
 

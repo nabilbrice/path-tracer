@@ -21,9 +21,9 @@ module rays_mod
      ! This should generally be a texture map when possible
      integer, dimension(3) :: colour = [255, 0, 0]
      real(r64), dimension(3,3) :: orientation = &
-          [1.0_r64, 0.0_r64, 0.0_r64, &
+          reshape([1.0_r64, 0.0_r64, 0.0_r64, &
            0.0_r64, 1.0_r64, 0.0_r64, &
-           0.0_r64, 0.0_r64, 1.0_r64]
+           0.0_r64, 0.0_r64, 1.0_r64], [3,3])
   end type sphere_type
 
 contains

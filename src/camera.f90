@@ -3,7 +3,7 @@ module camera_mod
   use constants_mod, only: pi
   use pixels_mod, only: pixel_type
   use vectors, only: normalise
-  use rays_mod, only: ray_type, new_ray
+  use rays_mod, only: ray_type
   implicit none
 
   !> The camera_type stores and manages the pixel layout

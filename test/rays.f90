@@ -58,7 +58,7 @@ contains
     ray % origin = [real(r64) :: -10.0, 0.0, 0.0]
     ray % direction = [real(r64) :: 1.0, 0.0, 0.0]
 
-    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
+    call new_sphere(sphere, [real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
 
     param = intersect_sphere(ray, sphere)
     expect = 9.0_r64
@@ -79,7 +79,7 @@ contains
     ray % origin = [real(r64) :: 0.0, 0.0, 10.0]
     ray % direction = [real(r64) :: 0.0, 0.0, -1.0]
 
-    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
+    call new_sphere(sphere, [real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
 
     param = gr_intersect_sphere(ray, sphere)
     call check(error, (param > -1.0_r64))
@@ -95,7 +95,7 @@ contains
     real(r64), dimension(2) :: surface_coord
     real(r64), dimension(2) :: expect
 
-    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
+    call new_sphere(sphere, [real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
     location = [real(r64) :: 1.0, 0.0, 0.0]
     expect = [real(r64) :: 0.5, 0.5]
     surface_coord = get_surface_coord(sphere, location)
@@ -124,7 +124,7 @@ contains
     ray % origin = [real(r64) :: 1.0, 0.0, 10.0]
     ray % direction = [real(r64) :: 0.0, 0.0, -1.0]
 
-    call sphere%new([real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
+    call new_sphere(sphere, [real(r64) :: 0.0, 0.0, 0.0], 1.0_r64, 0.0_r64)
 
     intersect_position = gr_get_position(ray, gr_intersect_sphere(ray, sphere))
     surface_coord = get_surface_coord(sphere, intersect_position)
