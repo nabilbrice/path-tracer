@@ -3,7 +3,7 @@ program surface_generator
   use pixels_mod, only: pixel_type
   use surfaces_mod, only: generate_gridded_surface, &
                           generate_chequered_surface
-  use io_mod, only: save_to_dat
+  use io_mod
   implicit none
 
   type(pixel_type), dimension(512,512) :: image
@@ -12,7 +12,8 @@ program surface_generator
   call generate_gridded_surface(image)
   call generate_chequered_surface(cheq_image)
 
-  call save_to_dat("./grid_map.dat", image)
-  call save_to_dat("./chequered_map.dat", cheq_image)
+  ! Save to the data array binary format used in this app
+  call save_to_dab("./grid_map.dab", image)
+  call save_to_dab("./chequered_map.dab", cheq_image)
 
 end program surface_generator

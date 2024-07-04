@@ -153,8 +153,8 @@ contains
   end subroutine save_to_dat
 
   !> Subroutine to save data from an image buffer
-  !> into a binary data file, using unformatted I/O.
-  subroutine save_to_bin(filepath, image)
+  !> into data array binary (.dab) file, using unformatted I/O.
+  subroutine save_to_dab(filepath, image)
     character(len=*), intent(in) :: filepath
     type(pixel_type), intent(in) :: image(:,:)
 
@@ -174,9 +174,11 @@ contains
 
     close(file_handle)
 
-  end subroutine save_to_bin
+  end subroutine save_to_dab
 
-  function load_from_bin(filepath) result(buffer)
+  !> Function to load data from a dab file directly
+  !> into an allocatable image bufer (not held by the camera)
+  function load_from_dab(filepath) result(buffer)
     character(len=*), intent(in)  :: filepath
     type(pixel_type), allocatable :: buffer(:,:)
 
@@ -197,6 +199,6 @@ contains
 
     close(file_handle)
 
-  end function load_from_bin
+  end function load_from_dab
 
 end module io_mod

@@ -4,7 +4,7 @@ module raytracer_mod
   use rays_mod
   use pixels_mod, only: pixel_type, get_readout
   use camera_mod, only: camera_type, sample_as_eye, sample_at_infinity
-  use io_mod, only: load_from_dat, load_from_ppm
+  use io_mod
   implicit none
   private
 
@@ -25,7 +25,7 @@ contains
     type(pixel_type), allocatable :: map(:,:)
 
     ! This actually belongs with building a sphere
-    map = load_from_ppm("./earthmap.ppm")
+    map = load_from_dab("./chequered_map.dab")
 
     ! The contents of these loops can be made
     ! into an elemental procedure
@@ -59,7 +59,7 @@ contains
     type(pixel_type), allocatable :: map(:,:)
 
     ! This actually belongs with building a sphere
-    map = load_from_ppm("./earthmap.ppm")
+    map = load_from_dab("./chequered_map.dab")
 
     ! The contents of these loops can be made
     ! into an elemental procedure

@@ -38,7 +38,7 @@ contains
          new_unittest("get readout from map", &
          test_get_readout_using_surface_coord),  &
          new_unittest("save to dat", test_save_to_dat),         &
-         new_unittest("save to bin", test_save_to_bin)]
+         new_unittest("save to dab", test_save_to_dab)]
   end subroutine collect_driver_io
 
   !> Unit test for saving to ppm file with the standard data
@@ -134,7 +134,7 @@ contains
     ! No other checks right now
   end subroutine test_save_to_dat
 
-  subroutine test_save_to_bin(error)
+  subroutine test_save_to_dab(error)
     type(error_type), allocatable, intent(out) :: error
 
     type(pixel_type), allocatable :: image(:,:)
@@ -142,12 +142,12 @@ contains
 
     call init_small_test_image(expect_image)
 
-    call save_to_bin("./testbindat.bd", expect_image)
+    call save_to_dab("./testbindat.dab", expect_image)
 
-    image = load_from_bin("./testbindat.bd")
+    image = load_from_dab("./testbindat.dab")
 
     call check(error, image(1,1)%readout(1), expect_image(1,1)%readout(1))
-  end subroutine test_save_to_bin
+  end subroutine test_save_to_dab
 
   subroutine test_get_readout_using_surface_coord(error)
     type(error_type), allocatable, intent(out) :: error
