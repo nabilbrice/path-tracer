@@ -4,11 +4,10 @@ module rays_mod
   use vectors, only: normalise
   implicit none
 
-  !> This derived data type is used over and over in arguments
+  !> This derived data type encapsulates commonly used args
   type :: ray_type
      real(r64), dimension(3) :: origin
      real(r64), dimension(3) :: direction
-   contains
   end type ray_type
 
   ! Base type for hittables to inherit
@@ -20,25 +19,17 @@ module rays_mod
      real(r64), dimension(3) :: centre = [0_r64, 0_r64, 0_r64]
      real(r64)               :: radius = 1.0_r64
      ! This should generally be a texture map when possible
-     integer, dimension(3) :: colour
-     real(r64), dimension(3,3) :: orientation
-   contains
-     procedure :: new => new_sphere
+     integer, dimension(3) :: colour = [255, 0, 0]
+     real(r64), dimension(3,3) :: orientation = &
+          [1.0_r64, 0.0_r64, 0.0_r64, &
+           0.0_r64, 1.0_r64, 0.0_r64, &
+           0.0_r64, 0.0_r64, 1.0_r64]
   end type sphere_type
 
 contains
-  subroutine new_ray(ray, origin, direction)
-    type(ray_type), intent(inout) :: ray
-    real(r64), dimension(3), intent(in)  :: origin, direction
-
-    ray%origin = origin
-    ray%direction = direction
-
-  end subroutine new_ray
-
   !> The get position function assumes a certain (straight line) path
   function get_position(ray, param) result(position)
-    type(ray_type), intent(in) :: ray
+    type(ray_type),  intent(in) :: ray
     real(r64),       intent(in) :: param
     real(r64), dimension(3)     :: position
 
@@ -116,20 +107,14 @@ contains
   end function gr_get_position
     
   subroutine new_sphere(sphere, centre, radius, theta, phi)
-    class(sphere_type), intent(inout) :: sphere
+    type(sphere_type), intent(inout) :: sphere
     real(r64), dimension(3), intent(in) :: centre
     real(r64), intent(in) :: radius
     real(r64), optional, intent(in) :: theta, phi
 
     sphere%centre = centre
     sphere%radius = radius
-    sphere%colour = [255, 0, 0]
 
-    ! The orientation needs to be given
-    sphere%orientation = reshape([real(r64) ::    &
-         1, 0, 0, &
-         0, 1, 0, &
-         0, 0, 1], [3,3] )
     ! The surface transforms opposite to the rotation
     ! First, transform about the y-axis, i.e.
     ! rotate in longitude
