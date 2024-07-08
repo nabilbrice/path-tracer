@@ -4,7 +4,7 @@ module pixels_mod
   implicit none
   private
 
-  public :: pixel_type, get_readout
+  public :: pixel_type, spectrum
 
   !> The pixel_type could be replaced with a parameter
   !> like SPECTRUM_DIMS = 3

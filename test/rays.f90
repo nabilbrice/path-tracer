@@ -37,7 +37,7 @@ contains
     ray % origin = [0_r64,0_r64,1_r64]
     ray % direction = [1_r64,1_r64,0_r64]
 
-    position = get_position(ray, 3.0_r64)
+    position = ray .at. 3.0_r64
     expect = [real(r64) :: 3.0, 3.0, 1.0]
 
     do i=1,3

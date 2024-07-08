@@ -26,10 +26,10 @@ contains
     write(file_handle, '(i3)') 255
 
     ! Write data in lines of 3 values
-    ! The dimension of the readout is implicitly known from here
+    ! The dimension of the spectrum is implicitly known from here
     do k=1,image_height
        do j=1,image_width
-          write(file_handle, '(3(i3, 1x))') (data(j,k)%readout(i), i=1,3)
+          write(file_handle, '(3(i3, 1x))') (data(j,k)%spectrum(i), i=1,3)
        end do
     end do
 
@@ -118,7 +118,7 @@ contains
     
     ! Read in the data
     do k=1,image_height
-       read(file_handle, *) (buffer(j,k)%readout(:), j=1,image_width)
+       read(file_handle, *) (buffer(j,k)%spectrum(:), j=1,image_width)
     end do
 
     close(file_handle)
@@ -144,7 +144,7 @@ contains
     do k=1,image_height
        do j=1,image_width
           write(file_handle, '(3(i3,1x))') &
-               (image(j,k)%readout(i), i=1,3)
+               (image(j,k)%spectrum(i), i=1,3)
        end do
     end do
 

@@ -2,7 +2,7 @@ module test_io
   use, intrinsic :: iso_fortran_env, only: r64 => real64
   use testdrive, only: error_type, unittest_type, new_unittest, check
   use io_mod
-  use pixels_mod, only: pixel_type, get_readout
+  use pixels_mod, only: pixel_type, spectrum
   use rays_mod, only: sphere_type, new_sphere
   use camera_mod, only: camera_type
   use raytracer_mod, only: raytrace
@@ -17,12 +17,12 @@ contains
   subroutine init_small_test_image(image)
     type(pixel_type), dimension(3,2), intent(out) :: image
 
-    image(1,1)%readout = [255, 0, 0]
-    image(2,1)%readout = [0, 255, 0]
-    image(3,1)%readout = [0, 0, 255]
-    image(1,2)%readout = [255, 255, 0]
-    image(2,2)%readout = [255, 255, 255]
-    image(3,2)%readout = [0, 0, 0]
+    image(1,1)%spectrum = [255, 0, 0]
+    image(2,1)%spectrum = [0, 255, 0]
+    image(3,1)%spectrum = [0, 0, 255]
+    image(1,2)%spectrum = [255, 255, 0]
+    image(2,2)%spectrum = [255, 255, 255]
+    image(3,2)%spectrum = [0, 0, 0]
 
   end subroutine init_small_test_image
 
@@ -64,8 +64,8 @@ contains
     call read_from_ppm("./test.ppm", image)
 
     call init_small_test_image(expect_image)
-    call check(error, image(2,1)%readout(2), &
-         expect_image(2,1)%readout(2))
+    call check(error, image(2,1)%spectrum(2), &
+         expect_image(2,1)%spectrum(2))
 
   end subroutine test_read_from_ppm
 
@@ -77,9 +77,9 @@ contains
 
     do row=1,size(image,2)
        do column=1,size(image,1)
-          image(column,row)%readout(1) = column
-          image(column,row)%readout(2) = row
-          image(column,row)%readout(3) = 0
+          image(column,row)%spectrum(1) = column
+          image(column,row)%spectrum(2) = row
+          image(column,row)%spectrum(3) = 0
        end do
     end do
 
@@ -112,8 +112,8 @@ contains
     data = load_from_dat("./test.dat")
 
     expect = [255, 0, 0]
-    call check(error, data(1,1)%readout(1), expect(1))
-    call check(error, data(1,1)%readout(2), expect(2))
+    call check(error, data(1,1)%spectrum(1), expect(1))
+    call check(error, data(1,1)%spectrum(2), expect(2))
 
   end subroutine test_load_from_dat
 
@@ -130,7 +130,8 @@ contains
     ! Load the image again to compare
     image = load_from_dat("./test.dat")
 
-    call check(error, image(1,1)%readout(1), expect_image(1,1)%readout(1))
+    call check(error, image(1,1)%spectrum(1), &
+         expect_image(1,1)%spectrum(1))
     ! No other checks right now
   end subroutine test_save_to_dat
 
@@ -146,7 +147,7 @@ contains
 
     image = load_from_dab("./testbindat.dab")
 
-    call check(error, image(1,1)%readout(1), expect_image(1,1)%readout(1))
+    call check(error, image(1,1)%spectrum(1), expect_image(1,1)%spectrum(1))
   end subroutine test_save_to_dab
 
   subroutine test_get_readout_using_surface_coord(error)
@@ -163,13 +164,13 @@ contains
     ! Should read the 2nd entry in the file
     surface_coord = [real(r64) :: 0, 0.5 ]
     expect = [0, 255, 0]
-    readout = get_readout(data, surface_coord)
+    readout = spectrum(data, surface_coord)
     call check(error, readout(2), expect(2))
 
     ! Should read the second to last entry
     surface_coord = [real(r64) :: 0.75, 0.6]
     expect = [255, 255, 255]
-    readout = get_readout(data, surface_coord)
+    readout = spectrum(data, surface_coord)
     call check(error, readout(3), expect(3))
 
   end subroutine test_get_readout_using_surface_coord

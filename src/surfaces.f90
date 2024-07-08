@@ -16,7 +16,7 @@ contains
     do k=1,image_height
        do j=1,image_width
           if ((modulo(k,8)/=0).and.(modulo(j,8)/=0)) then
-             image(j,k)%readout = [integer(i32) :: 255, 0, 0]
+             image(j,k)%spectrum = [integer(i32) :: 255, 0, 0]
           end if
        end do
     end do
@@ -35,9 +35,9 @@ contains
        do j=1, image_width
           select case (modulo(j+k, 2))
           case (0)
-             image(j,k)%readout = [integer(i32) :: 255, 0, 0]
+             image(j,k)%spectrum = [integer(i32) :: 255, 0, 0]
           case (1)
-             image(j,k)%readout = [integer(i32) :: 0, 255, 0]
+             image(j,k)%spectrum = [integer(i32) :: 0, 255, 0]
           end select
        end do
     end do
