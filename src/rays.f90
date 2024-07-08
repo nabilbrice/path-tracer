@@ -1,17 +1,27 @@
 module rays_mod
-  use, intrinsic :: iso_fortran_env, only: r64 => real64
+  use, intrinsic :: iso_fortran_env, only: i32 => int32, r64 => real64
   use constants_mod, only: pi, gr_compactness
   use vectors, only: normalise
   implicit none
 
-  !> This derived data type encapsulates commonly used args
+  !> This derived data type encapsulates commonly used args.
+  !> The ray trajectories are determined through the spacetime
+  !> but are currently tied in with the intersection
+  !> of a (massive) sphere only.
   type :: ray_type
-     real(r64), dimension(3) :: origin
-     real(r64), dimension(3) :: direction
+     real(r64), dimension(3) :: origin, direction
   end type ray_type
 
+  interface operator (.intersect.)
+     module procedure :: intersect_sphere
+  end interface operator (.intersect.)
+
+  interface operator (.at.)
+     module procedure :: ray_location
+  end interface operator (.at.)
+
   ! Base type for hittables to inherit
-  ! So they can be placed into an array
+  ! So they can be placed into an array later.
   type, abstract :: hittable_type
   end type hittable_type
 
@@ -19,7 +29,7 @@ module rays_mod
      real(r64), dimension(3) :: centre = [0_r64, 0_r64, 0_r64]
      real(r64)               :: radius = 1.0_r64
      ! This should generally be a texture map when possible
-     integer, dimension(3) :: colour = [255, 0, 0]
+     integer(i32), dimension(3) :: colour = [255, 0, 0]
      real(r64), dimension(3,3) :: orientation = &
           reshape([1.0_r64, 0.0_r64, 0.0_r64, &
            0.0_r64, 1.0_r64, 0.0_r64, &
@@ -28,14 +38,14 @@ module rays_mod
 
 contains
   !> The get position function assumes a certain (straight line) path
-  function get_position(ray, param) result(position)
+  function ray_location(ray, param) result(position)
     type(ray_type),  intent(in) :: ray
     real(r64),       intent(in) :: param
     real(r64), dimension(3)     :: position
 
     position = ray%origin + param * ray%direction
 
-  end function get_position
+  end function ray_location
 
   function intersect_sphere(ray, sphere) result(param)
     type(ray_type),    intent(in) :: ray

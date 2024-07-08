@@ -2,7 +2,7 @@ module raytracer_mod
   use, intrinsic :: iso_fortran_env, only: r64 => real64, i32 => int32
   use vectors, only: normalise
   use rays_mod
-  use pixels_mod, only: pixel_type, get_readout
+  use pixels_mod, only: pixel_type, spectrum
   use camera_mod, only: camera_type, sample_as_eye, sample_at_infinity
   use io_mod
   implicit none
@@ -20,12 +20,12 @@ contains
 
     type(ray_type) :: ray
     integer(i32) :: i, j
-    real(r64) :: param
+    real(r64) :: intersect_param
     real(r64), dimension(2) :: surface_coord
     type(pixel_type), allocatable :: map(:,:)
 
     ! This actually belongs with building a sphere
-    map = load_from_dab("./chequered_map.dab")
+    map = load_from_ppm("./earthmap.ppm")
 
     ! The contents of these loops can be made
     ! into an elemental procedure
@@ -34,14 +34,14 @@ contains
           ! Create a ray at the pixel
           call sample_at_infinity(camera,i,j,ray)
           ! Then test for intersection with the sphere
-          param = intersect_sphere(ray,sphere)
+          intersect_param = ray .intersect. sphere
           ! If there is an intersection, color the pixel
-          if (param > 0.0) then
-             surface_coord = get_surface_coord(sphere, get_position(ray,param))
-             camera%image(i,j)%readout = get_readout(map, surface_coord)
+          if (intersect_param > 0.0) then
+             surface_coord = get_surface_coord(sphere, ray .at. intersect_param)
+             camera%image(i,j)%spectrum = spectrum(map, surface_coord)
           else
              ! Pixels begin as empty
-             camera%image(i,j)%readout = [0, 0, 0]
+             camera%image(i,j)%spectrum = [0, 0, 0]
           end if
        end do
     end do
@@ -59,7 +59,7 @@ contains
     type(pixel_type), allocatable :: map(:,:)
 
     ! This actually belongs with building a sphere
-    map = load_from_dab("./chequered_map.dab")
+    map = load_from_ppm("./earthmap.ppm")
 
     ! The contents of these loops can be made
     ! into an elemental procedure
@@ -73,7 +73,7 @@ contains
           if (param > -0.99) then
              surface_coord = get_surface_coord( sphere, &
                   gr_get_position(ray, param) )
-             camera%image(i,j)%readout = get_readout(map, surface_coord)
+             camera%image(i,j)%spectrum = spectrum(map, surface_coord)
           end if
        end do
     end do
